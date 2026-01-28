@@ -1,0 +1,7 @@
+{
+  "name": "Lotus Spa Manager CCPA",
+  "description": "A comprehensive Spa management application featuring employee management, booking tracking, and AI-powered staff insights using Google Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

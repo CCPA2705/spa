@@ -8,7 +8,6 @@ import { supabase } from './lib/supabase';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { Loader2 } from 'lucide-react';
-import './index.css';
 
 // --- SHARED MOCK DATA (SYNCED WITH PAGES) ---
 const INITIAL_EMPLOYEES: Employee[] = [

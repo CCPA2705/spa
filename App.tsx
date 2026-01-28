@@ -304,9 +304,13 @@ const Dashboard: React.FC = () => {
       status: newService.status, description: newService.description, image: newService.image
     }).select().single();
 
-    if (!error && data) {
+    if (error) {
+      console.error('Error adding service:', error);
+      alert(`Thêm dịch vụ thất bại: ${error.message}`);
+    } else if (data) {
       const mapped = { ...data, staffCount: data.staff_count };
       setServices(prev => [mapped as unknown as Service, ...prev]);
+      alert('Thêm dịch vụ thành công!');
     }
   };
 
@@ -317,15 +321,26 @@ const Dashboard: React.FC = () => {
       status: updatedService.status, description: updatedService.description, image: updatedService.image
     }).eq('id', updatedService.id);
 
-    if (!error) {
+    if (error) {
+      console.error('Error updating service:', error);
+      alert(`Cập nhật thất bại: ${error.message}`);
+    } else {
       setServices(prev => prev.map(s => s.id === updatedService.id ? updatedService : s));
+      alert('Cập nhật dịch vụ thành công!');
     }
   };
 
   const handleDeleteService = async (id: string) => {
-    const { error } = await supabase.from('services').delete().eq('id', id);
-    if (!error) {
-      setServices(prev => prev.filter(s => s.id !== id));
+    // Soft delete: Update status to STOPPED instead of hard delete
+    const { error } = await supabase.from('services').update({ status: 'Ngưng phục vụ' }).eq('id', id);
+
+    if (error) {
+      console.error('Error deleting service:', error);
+      alert(`Xóa dịch vụ thất bại (đã chuyển sang trạng thái ngưng phục vụ): ${error.message}`);
+    } else {
+      // Update local state: either remove it or update its status
+      setServices(prev => prev.map(s => s.id === id ? { ...s, status: ServiceStatus.STOPPED } : s));
+      alert('Đã chuyển dịch vụ sang trạng thái "Ngưng phục vụ" vì có dữ liệu lịch sử.');
     }
   };
 
@@ -333,8 +348,25 @@ const Dashboard: React.FC = () => {
     // Generate ID on client or let DB do it. Let DB do it. 
     // But Booking interface needs ID. We usually submit without ID.
     // Assuming newBooking comes with temp ID or we ignore it.
+    // 1. Fetch latest booking code to ensure uniqueness
+    const { data: latestBooking } = await supabase
+      .from('bookings')
+      .select('code')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    let nextCode = 'BK001';
+    if (latestBooking && latestBooking.code) {
+      const match = latestBooking.code.match(/BK(\d+)/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        nextCode = `BK${(num + 1).toString().padStart(3, '0')}`;
+      }
+    }
+
     const payload = {
-      code: newBooking.code,
+      code: nextCode, // Use server-validated code
       customer_name: newBooking.customerName,
       customer_phone: newBooking.customerPhone,
       service_id: newBooking.serviceId,

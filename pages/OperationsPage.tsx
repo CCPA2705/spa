@@ -7,7 +7,7 @@ import {
     LayoutGrid, BedDouble, UserCheck, SlidersHorizontal, FilterX,
     TrendingUp, CalendarRange, CalendarDays, Phone, User
 } from 'lucide-react';
-import { Booking, Employee, BookingStatus, EmployeeStatus, Position, Service } from '../types';
+import { Booking, Employee, BookingStatus, EmployeeStatus, Position, Service, ServiceStatus } from '../types';
 
 interface OperationsPageProps {
     bookings: Booking[];
@@ -577,6 +577,13 @@ export const OperationsPage: React.FC<OperationsPageProps> = ({
         }
 
         const validStaffIds = formData.selectedStaffIds.filter(id => id && id.trim() !== '');
+
+        // CHECK: MANDATORY STAFF SELECTION
+        if (validStaffIds.length < service.staffCount) {
+            alert(`Dịch vụ này yêu cầu ${service.staffCount} nhân viên. Vui lòng chọn đủ nhân viên.`);
+            return;
+        }
+
         const selectedStaffObjects = validStaffIds
             .map(id => employees.find(e => e.id === id))
             .filter(Boolean);
@@ -1475,7 +1482,7 @@ export const OperationsPage: React.FC<OperationsPageProps> = ({
                                             onChange={handleServiceChange}
                                         >
                                             <option value="">-- Chọn dịch vụ --</option>
-                                            {services.map(s => (
+                                            {services.filter(s => s.status === ServiceStatus.ACTIVE || s.id === formData.serviceId).map(s => (
                                                 <option key={s.id} value={s.id}>
                                                     {s.name} ({s.duration}p) - {formatCurrency(s.price)}
                                                     {s.staffCount > 1 ? ` [${s.staffCount} NV]` : ''}

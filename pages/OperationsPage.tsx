@@ -1150,7 +1150,7 @@ export const OperationsPage: React.FC<OperationsPageProps> = ({
                         {/* Legends (Moved here) */}
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                             <div className="flex items-center gap-1.5 whitespace-nowrap">
-                                <div className="w-3 h-3 bg-yellow-300 border border-yellow-500 rounded-sm"></div><span>Chờ xác nhận</span>
+                                <div className="w-3 h-3 bg-yellow-300 border border-yellow-500 rounded-sm"></div><span>Canceled</span>
                             </div>
                             <div className="flex items-center gap-1.5 whitespace-nowrap">
                                 <div className="w-3 h-3 bg-blue-500 border border-blue-700 rounded-sm"></div><span>Đã xác nhận</span>
